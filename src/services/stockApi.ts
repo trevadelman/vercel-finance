@@ -1,5 +1,26 @@
 import { StockData, MarketIndices, StockHistoricalData } from '@/types/stock';
 
+// Define interface for technical indicators response
+interface TechnicalIndicatorsResponse {
+  historicalData: StockHistoricalData[];
+  sma20?: number[];
+  sma50?: number[];
+  sma200?: number[];
+  ema12?: number[];
+  ema26?: number[];
+  rsi?: number[];
+  macd?: {
+    macd: number[];
+    signal: number[];
+    histogram: number[];
+  };
+  bollinger?: {
+    upper: number[];
+    middle: number[];
+    lower: number[];
+  };
+}
+
 // Base URL for API requests
 const API_BASE_URL = '/api/stocks';
 
@@ -92,6 +113,34 @@ export const getStockHistory = async (
 };
 
 /**
+ * Get technical indicators for a stock
+ * @param symbol Stock symbol
+ * @param period Time period (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, ytd)
+ * @param interval Data interval (1d, 1wk, 1mo)
+ * @param indicators Comma-separated list of indicators (sma,ema,rsi,macd,bollinger)
+ */
+export const getTechnicalIndicators = async (
+  symbol: string,
+  period: string = '1y',
+  interval: string = '1d',
+  indicators: string = 'sma,ema,rsi,macd,bollinger'
+): Promise<TechnicalIndicatorsResponse> => {
+  try {
+    const url = `${API_BASE_URL}/indicators?symbol=${encodeURIComponent(symbol)}&period=${period}&interval=${interval}&indicators=${indicators}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch technical indicators: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching technical indicators:', error);
+    return { historicalData: [] };
+  }
+};
+
+/**
  * Get watchlist (to be implemented with local storage or database)
  */
 export const getWatchlist = async (): Promise<StockData[]> => {
@@ -114,6 +163,7 @@ const stockApi = {
   searchStocks,
   getMarketIndices,
   getStockHistory,
+  getTechnicalIndicators,
   getWatchlist,
 };
 
