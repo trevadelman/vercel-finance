@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import yahooFinance from 'yahoo-finance2';
-import { StockData } from '@/types/stock';
+import { StockData, QuoteType } from '@/types/stock';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -11,6 +11,16 @@ export async function GET(request: NextRequest) {
     if (action === 'quote' && symbol) {
       // Get a single stock quote
       const result = await yahooFinance.quote(symbol);
+      
+      // Determine the quote type
+      let quoteType: QuoteType = 'Other';
+      if (result.quoteType) {
+        if (result.quoteType === 'EQUITY') quoteType = 'Equity';
+        else if (result.quoteType === 'ETF') quoteType = 'ETF';
+        else if (result.quoteType === 'MUTUALFUND') quoteType = 'Fund';
+        else if (result.quoteType === 'CRYPTOCURRENCY') quoteType = 'Cryptocurrency';
+        else if (result.quoteType === 'INDEX') quoteType = 'Index';
+      }
       
       const stockData: StockData = {
         symbol: result.symbol,
@@ -24,6 +34,7 @@ export async function GET(request: NextRequest) {
         // Handle optional fields that might not exist in the result
         dividend: result.trailingAnnualDividendYield || 0,
         sector: 'N/A', // Yahoo Finance API doesn't directly provide sector in quote
+        quoteType: quoteType
       };
       
       return NextResponse.json(stockData);
@@ -45,17 +56,43 @@ export async function GET(request: NextRequest) {
           if ('shortname' in quote) name = quote.shortname as string;
           else if ('longname' in quote) name = quote.longname as string;
           
-          // Only add if it's likely an equity
+          // Get the quote type to determine what kind of security it is
           const quoteType = 'quoteType' in quote ? quote.quoteType : '';
           const typeDisp = 'typeDisp' in quote ? quote.typeDisp : '';
           
+          // Determine the standardized quote type for our app
+          let standardQuoteType: QuoteType = 'Other';
+          
           if (quoteType === 'EQUITY' || typeDisp === 'Equity') {
+            standardQuoteType = 'Equity';
+          } else if (quoteType === 'ETF' || typeDisp === 'ETF') {
+            standardQuoteType = 'ETF';
+          } else if (quoteType === 'MUTUALFUND' || typeDisp === 'Fund') {
+            standardQuoteType = 'Fund';
+          } else if (quoteType === 'CRYPTOCURRENCY' || typeDisp === 'Cryptocurrency') {
+            standardQuoteType = 'Cryptocurrency';
+          } else if (quoteType === 'INDEX') {
+            standardQuoteType = 'Index';
+          }
+          
+          // Include equities, ETFs, mutual funds, cryptocurrencies, and indices
+          if (standardQuoteType !== 'Other' || 
+              quoteType === 'EQUITY' || 
+              quoteType === 'ETF' || 
+              quoteType === 'MUTUALFUND' || 
+              quoteType === 'CRYPTOCURRENCY' || 
+              quoteType === 'INDEX' || 
+              typeDisp === 'Equity' || 
+              typeDisp === 'ETF' || 
+              typeDisp === 'Fund' || 
+              typeDisp === 'Cryptocurrency') {
             stocks.push({
               symbol,
               name,
               price: 0, // Search doesn't provide price data
               change: 0,
               changePercent: 0,
+              quoteType: standardQuoteType
             });
           }
         }

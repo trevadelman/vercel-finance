@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
-import { Typography, Table, Button, Empty, Card, Spin, Alert, message } from 'antd';
+import { Typography, Table, Button, Empty, Card, Spin, Alert, message, Tag } from 'antd';
 import { DeleteOutlined, StarFilled, LineChartOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { getWatchlist } from '@/services/stockApi';
@@ -15,6 +15,7 @@ interface StockRecord {
   name: string;
   price: number;
   change: number;
+  quoteType?: string;
 }
 
 const { Title, Paragraph } = Typography;
@@ -59,13 +60,14 @@ export default function WatchlistPage() {
   };
 
   // Recommended stocks
-  const recommendedStocks = [
+  const recommendedStocks: StockRecord[] = [
     {
       key: '1',
       symbol: 'AAPL',
       name: 'Apple Inc.',
       price: 182.52,
       change: 1.23,
+      quoteType: 'Equity',
     },
     {
       key: '2',
@@ -73,6 +75,7 @@ export default function WatchlistPage() {
       name: 'Microsoft Corporation',
       price: 417.88,
       change: -2.45,
+      quoteType: 'Equity',
     },
     {
       key: '3',
@@ -80,6 +83,23 @@ export default function WatchlistPage() {
       name: 'Alphabet Inc.',
       price: 152.19,
       change: 0.87,
+      quoteType: 'Equity',
+    },
+    {
+      key: '4',
+      symbol: 'BTC-USD',
+      name: 'Bitcoin USD',
+      price: 62345.78,
+      change: 1234.56,
+      quoteType: 'Cryptocurrency',
+    },
+    {
+      key: '5',
+      symbol: 'SWPPX',
+      name: 'Schwab S&P 500 Index Fund',
+      price: 73.45,
+      change: 0.32,
+      quoteType: 'Fund',
     },
   ];
 
@@ -119,6 +139,21 @@ export default function WatchlistPage() {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+    },
+    {
+      title: 'Type',
+      dataIndex: 'quoteType',
+      key: 'quoteType',
+      render: (quoteType: string) => {
+        let color = 'default';
+        if (quoteType === 'Equity') color = 'blue';
+        else if (quoteType === 'ETF') color = 'green';
+        else if (quoteType === 'Fund') color = 'purple';
+        else if (quoteType === 'Cryptocurrency') color = 'orange';
+        else if (quoteType === 'Index') color = 'cyan';
+        
+        return <Tag color={color}>{quoteType || 'N/A'}</Tag>;
+      },
     },
     {
       title: 'Price',
@@ -178,6 +213,21 @@ export default function WatchlistPage() {
       key: 'name',
     },
     {
+      title: 'Type',
+      dataIndex: 'quoteType',
+      key: 'quoteType',
+      render: (quoteType: string) => {
+        let color = 'default';
+        if (quoteType === 'Equity') color = 'blue';
+        else if (quoteType === 'ETF') color = 'green';
+        else if (quoteType === 'Fund') color = 'purple';
+        else if (quoteType === 'Cryptocurrency') color = 'orange';
+        else if (quoteType === 'Index') color = 'cyan';
+        
+        return <Tag color={color}>{quoteType || 'N/A'}</Tag>;
+      },
+    },
+    {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
@@ -209,6 +259,29 @@ export default function WatchlistPage() {
     },
   ];
 
+  // Group watchlist data by quote type
+  const getGroupedWatchlist = () => {
+    const groups: Record<string, StockData[]> = {
+      'Equity': [],
+      'ETF': [],
+      'Fund': [],
+      'Cryptocurrency': [],
+      'Index': [],
+      'Other': []
+    };
+    
+    watchlistData.forEach(stock => {
+      const type = stock.quoteType || 'Other';
+      if (groups[type]) {
+        groups[type].push(stock);
+      } else {
+        groups['Other'].push(stock);
+      }
+    });
+    
+    return groups;
+  };
+
   return (
     <AppLayout>
       <div>
@@ -235,14 +308,36 @@ export default function WatchlistPage() {
             </Empty>
           </Card>
         ) : (
-          <Card style={{ marginBottom: 24 }}>
-            <Table 
-              columns={watchlistColumns}
-              dataSource={watchlistData.map(stock => ({ ...stock, key: stock.symbol }))}
-              pagination={false}
-              rowKey="symbol"
-            />
-          </Card>
+          <>
+            {/* Group watchlist by quote type */}
+            {Object.entries(getGroupedWatchlist()).map(([type, stocks]) => {
+              if (stocks.length === 0) return null;
+              
+              return (
+                <Card 
+                  key={type} 
+                  title={`${type} Watchlist`} 
+                  style={{ marginBottom: 16 }}
+                  headStyle={{ 
+                    backgroundColor: 
+                      type === 'Equity' ? '#e6f7ff' : 
+                      type === 'ETF' ? '#f6ffed' : 
+                      type === 'Fund' ? '#f9f0ff' : 
+                      type === 'Cryptocurrency' ? '#fff7e6' : 
+                      type === 'Index' ? '#e6fffb' : 
+                      '#f0f0f0'
+                  }}
+                >
+                  <Table 
+                    columns={watchlistColumns}
+                    dataSource={stocks.map(stock => ({ ...stock, key: stock.symbol }))}
+                    pagination={false}
+                    rowKey="symbol"
+                  />
+                </Card>
+              );
+            })}
+          </>
         )}
         
         <Title level={3}>Recommended Stocks</Title>

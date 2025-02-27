@@ -1,3 +1,5 @@
+export type QuoteType = 'Equity' | 'ETF' | 'Fund' | 'Cryptocurrency' | 'Index' | 'Other';
+
 export interface StockData {
   symbol: string;
   name: string;
@@ -9,6 +11,7 @@ export interface StockData {
   pe?: number;
   dividend?: number;
   sector?: string;
+  quoteType?: QuoteType;
 }
 
 export interface MarketIndex {

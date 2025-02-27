@@ -19,7 +19,8 @@ import {
   Input, 
   InputNumber, 
   DatePicker, 
-  message 
+  message,
+  Tag
 } from 'antd';
 import { 
   ArrowUpOutlined, 
@@ -31,7 +32,7 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { getStockQuote } from '@/services/stockApi';
-import { StockData } from '@/types/stock';
+import { StockData, QuoteType } from '@/types/stock';
 import { PortfolioItem } from '@/services/storageService';
 import dayjs from 'dayjs';
 
@@ -44,6 +45,7 @@ interface RecommendedStock {
   name: string;
   price: number;
   change: number;
+  quoteType?: QuoteType;
 }
 
 export default function PortfolioPage() {
@@ -90,10 +92,15 @@ export default function PortfolioPage() {
         const stockPromises = symbols.map(symbol => getStockQuote(symbol));
         const stocksData = await Promise.all(stockPromises);
         
-        // Create a map of symbol to current price
+        // Create a map of symbol to current price and quote type
         const priceMap: Record<string, number> = {};
+        const quoteTypeMap: Record<string, QuoteType> = {};
+        
         stocksData.forEach(stock => {
           priceMap[stock.symbol] = stock.price;
+          if (stock.quoteType) {
+            quoteTypeMap[stock.symbol] = stock.quoteType;
+          }
         });
         
         // Calculate portfolio statistics
@@ -114,7 +121,8 @@ export default function PortfolioPage() {
             currentPrice,
             currentValue,
             gain,
-            gainPercent
+            gainPercent,
+            quoteType: item.quoteType || quoteTypeMap[item.symbol] || 'Other'
           };
         });
         
@@ -174,7 +182,8 @@ export default function PortfolioPage() {
         name: stockData?.name || values.symbol.toUpperCase(),
         shares: values.shares,
         purchasePrice: values.purchasePrice,
-        purchaseDate: values.purchaseDate.format('YYYY-MM-DD')
+        purchaseDate: values.purchaseDate.format('YYYY-MM-DD'),
+        quoteType: stockData?.quoteType
       };
       
       addToPortfolio(portfolioItem);
@@ -188,10 +197,15 @@ export default function PortfolioPage() {
       const stockPromises = symbols.map(symbol => getStockQuote(symbol));
       const stocksData = await Promise.all(stockPromises);
       
-      // Create a map of symbol to current price
+      // Create a map of symbol to current price and quote type
       const priceMap: Record<string, number> = {};
+      const quoteTypeMap: Record<string, QuoteType> = {};
+      
       stocksData.forEach(stock => {
         priceMap[stock.symbol] = stock.price;
+        if (stock.quoteType) {
+          quoteTypeMap[stock.symbol] = stock.quoteType;
+        }
       });
       
       // Calculate portfolio statistics
@@ -212,7 +226,8 @@ export default function PortfolioPage() {
           currentPrice,
           currentValue,
           gain,
-          gainPercent
+          gainPercent,
+          quoteType: item.quoteType || quoteTypeMap[item.symbol] || 'Other'
         };
       });
       
@@ -346,6 +361,7 @@ export default function PortfolioPage() {
       name: 'Vanguard S&P 500 ETF',
       price: 467.25,
       change: 2.34,
+      quoteType: 'ETF',
     },
     {
       key: '2',
@@ -353,6 +369,7 @@ export default function PortfolioPage() {
       name: 'Invesco QQQ Trust',
       price: 438.27,
       change: 1.56,
+      quoteType: 'ETF',
     },
     {
       key: '3',
@@ -360,6 +377,23 @@ export default function PortfolioPage() {
       name: 'Vanguard Total Stock Market ETF',
       price: 252.86,
       change: 1.12,
+      quoteType: 'ETF',
+    },
+    {
+      key: '4',
+      symbol: 'BTC-USD',
+      name: 'Bitcoin USD',
+      price: 62345.78,
+      change: 1234.56,
+      quoteType: 'Cryptocurrency',
+    },
+    {
+      key: '5',
+      symbol: 'SWPPX',
+      name: 'Schwab S&P 500 Index Fund',
+      price: 73.45,
+      change: 0.32,
+      quoteType: 'Fund',
     },
   ];
 
@@ -373,7 +407,8 @@ export default function PortfolioPage() {
       change: stock.change,
       changePercent: (stock.change / stock.price) * 100,
       volume: 0,
-      marketCap: 0
+      marketCap: 0,
+      quoteType: stock.quoteType
     });
     
     form.setFieldsValue({
@@ -404,6 +439,21 @@ export default function PortfolioPage() {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+    },
+    {
+      title: 'Type',
+      dataIndex: 'quoteType',
+      key: 'quoteType',
+      render: (quoteType: string) => {
+        let color = 'default';
+        if (quoteType === 'Equity') color = 'blue';
+        else if (quoteType === 'ETF') color = 'green';
+        else if (quoteType === 'Fund') color = 'purple';
+        else if (quoteType === 'Cryptocurrency') color = 'orange';
+        else if (quoteType === 'Index') color = 'cyan';
+        
+        return <Tag color={color}>{quoteType || 'N/A'}</Tag>;
+      },
     },
     {
       title: 'Shares',
@@ -491,6 +541,21 @@ export default function PortfolioPage() {
       key: 'name',
     },
     {
+      title: 'Type',
+      dataIndex: 'quoteType',
+      key: 'quoteType',
+      render: (quoteType: string) => {
+        let color = 'default';
+        if (quoteType === 'Equity') color = 'blue';
+        else if (quoteType === 'ETF') color = 'green';
+        else if (quoteType === 'Fund') color = 'purple';
+        else if (quoteType === 'Cryptocurrency') color = 'orange';
+        else if (quoteType === 'Index') color = 'cyan';
+        
+        return <Tag color={color}>{quoteType || 'N/A'}</Tag>;
+      },
+    },
+    {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
@@ -556,6 +621,29 @@ export default function PortfolioPage() {
       }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
+  };
+
+  // Group portfolio data by quote type
+  const getGroupedPortfolio = () => {
+    const groups: Record<string, (PortfolioItem & { currentPrice?: number; currentValue?: number; gain?: number; gainPercent?: number })[]> = {
+      'Equity': [],
+      'ETF': [],
+      'Fund': [],
+      'Cryptocurrency': [],
+      'Index': [],
+      'Other': []
+    };
+    
+    portfolio.forEach(item => {
+      const type = item.quoteType || 'Other';
+      if (groups[type]) {
+        groups[type].push(item);
+      } else {
+        groups['Other'].push(item);
+      }
+    });
+    
+    return groups;
   };
 
   const sectorAllocation = calculateSectorAllocation();
@@ -628,10 +716,9 @@ export default function PortfolioPage() {
             </Empty>
           </Card>
         ) : (
-          <Card 
-            style={{ marginBottom: 24 }}
-            title="Holdings"
-            extra={
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Title level={3} style={{ margin: 0 }}>Holdings</Title>
               <Button 
                 type="primary" 
                 icon={<PlusOutlined />}
@@ -639,16 +726,38 @@ export default function PortfolioPage() {
               >
                 Add Stock
               </Button>
-            }
-          >
-            <Table 
-              columns={portfolioColumns}
-              dataSource={portfolio}
-              pagination={false}
-              rowKey="symbol"
-              scroll={{ x: true }}
-            />
-          </Card>
+            </div>
+            
+            {/* Group portfolio by quote type */}
+            {Object.entries(getGroupedPortfolio()).map(([type, stocks]) => {
+              if (stocks.length === 0) return null;
+              
+              return (
+                <Card 
+                  key={type} 
+                  title={`${type} Holdings`} 
+                  style={{ marginBottom: 16 }}
+                  headStyle={{ 
+                    backgroundColor: 
+                      type === 'Equity' ? '#e6f7ff' : 
+                      type === 'ETF' ? '#f6ffed' : 
+                      type === 'Fund' ? '#f9f0ff' : 
+                      type === 'Cryptocurrency' ? '#fff7e6' : 
+                      type === 'Index' ? '#e6fffb' : 
+                      '#f0f0f0'
+                  }}
+                >
+                  <Table 
+                    columns={portfolioColumns}
+                    dataSource={stocks}
+                    pagination={false}
+                    rowKey="symbol"
+                    scroll={{ x: true }}
+                  />
+                </Card>
+              );
+            })}
+          </>
         )}
         
         {portfolio.length > 0 && (
@@ -746,6 +855,19 @@ export default function PortfolioPage() {
                     <div>
                       <Text strong>{stockData.symbol}</Text>
                       <div>{stockData.name}</div>
+                      {stockData.quoteType && (
+                        <Tag 
+                          color={
+                            stockData.quoteType === 'Equity' ? 'blue' : 
+                            stockData.quoteType === 'ETF' ? 'green' : 
+                            stockData.quoteType === 'Fund' ? 'purple' : 
+                            stockData.quoteType === 'Cryptocurrency' ? 'orange' : 
+                            stockData.quoteType === 'Index' ? 'cyan' : 'default'
+                          }
+                        >
+                          {stockData.quoteType}
+                        </Tag>
+                      )}
                     </div>
                     <div>
                       <Text strong>${stockData.price.toFixed(2)}</Text>

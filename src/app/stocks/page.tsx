@@ -16,6 +16,7 @@ interface StockRecord {
   symbol: string;
   name: string;
   sector: string;
+  quoteType?: string;
 }
 
 export default function StocksPage() {
@@ -106,30 +107,56 @@ export default function StocksPage() {
       symbol: 'AAPL',
       name: 'Apple Inc.',
       sector: 'Technology',
+      quoteType: 'Equity',
     },
     {
       key: '2',
       symbol: 'MSFT',
       name: 'Microsoft Corporation',
       sector: 'Technology',
+      quoteType: 'Equity',
     },
     {
       key: '3',
       symbol: 'GOOGL',
       name: 'Alphabet Inc.',
       sector: 'Technology',
+      quoteType: 'Equity',
     },
     {
       key: '4',
       symbol: 'AMZN',
       name: 'Amazon.com Inc.',
       sector: 'Consumer Cyclical',
+      quoteType: 'Equity',
     },
     {
       key: '5',
       symbol: 'META',
       name: 'Meta Platforms Inc.',
       sector: 'Technology',
+      quoteType: 'Equity',
+    },
+    {
+      key: '6',
+      symbol: 'BTC-USD',
+      name: 'Bitcoin USD',
+      sector: 'Cryptocurrency',
+      quoteType: 'Cryptocurrency',
+    },
+    {
+      key: '7',
+      symbol: 'SPY',
+      name: 'SPDR S&P 500 ETF Trust',
+      sector: 'Financial Services',
+      quoteType: 'ETF',
+    },
+    {
+      key: '8',
+      symbol: 'SWPPX',
+      name: 'Schwab S&P 500 Index Fund',
+      sector: 'Financial Services',
+      quoteType: 'Fund',
     },
   ];
 
@@ -144,6 +171,21 @@ export default function StocksPage() {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+    },
+    {
+      title: 'Type',
+      dataIndex: 'quoteType',
+      key: 'quoteType',
+      render: (quoteType: string) => {
+        let color = 'default';
+        if (quoteType === 'Equity') color = 'blue';
+        else if (quoteType === 'ETF') color = 'green';
+        else if (quoteType === 'Fund') color = 'purple';
+        else if (quoteType === 'Cryptocurrency') color = 'orange';
+        else if (quoteType === 'Index') color = 'cyan';
+        
+        return <Tag color={color}>{quoteType || 'N/A'}</Tag>;
+      },
     },
     {
       title: 'Sector',
@@ -234,6 +276,7 @@ export default function StocksPage() {
                 ...stock,
                 key: index.toString(),
                 sector: stock.sector || 'N/A',
+                quoteType: stock.quoteType || 'Other',
               }))}
               pagination={false}
               style={{ marginBottom: 24 }}

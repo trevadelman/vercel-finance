@@ -14,6 +14,7 @@ export interface PortfolioItem {
   shares: number;
   purchasePrice: number;
   purchaseDate: string;
+  quoteType?: string;
 }
 
 // Keys for localStorage
