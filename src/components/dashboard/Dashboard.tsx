@@ -1,13 +1,66 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, Typography, Table, Input, Button, Spin, Alert } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, SearchOutlined } from '@ant-design/icons';
+import { 
+  Row, 
+  Col, 
+  Card, 
+  Statistic, 
+  Typography, 
+  Table, 
+  Input, 
+  Button, 
+  Spin, 
+  Alert, 
+  Divider, 
+  Tag, 
+  Tooltip, 
+  Space,
+  Badge
+} from 'antd';
+import { 
+  ArrowUpOutlined, 
+  ArrowDownOutlined, 
+  SearchOutlined, 
+  InfoCircleOutlined,
+  StarOutlined,
+  StarFilled,
+  LineChartOutlined,
+  DollarCircleOutlined,
+  GlobalOutlined,
+  FireOutlined
+} from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { StockData, MarketIndices } from '@/types/stock';
 import { getMarketIndices, getWatchlist, searchStocks } from '@/services/stockApi';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
 
-const { Title } = Typography;
+const { Title, Text, Paragraph } = Typography;
+
+// Animation variants for staggered animations
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12
+    }
+  }
+};
 
 const Dashboard: React.FC = () => {
   const [marketData, setMarketData] = useState<MarketIndices | null>(null);
@@ -24,6 +77,7 @@ const Dashboard: React.FC = () => {
     watchlist: '',
     search: '',
   });
+  const [trendingStocks, setTrendingStocks] = useState<StockData[]>([]);
 
   // Fetch market data on component mount
   useEffect(() => {
@@ -48,6 +102,11 @@ const Dashboard: React.FC = () => {
       try {
         const data = await getWatchlist();
         setWatchlist(data);
+        
+        // Set trending stocks (for demo purposes, just using the watchlist data)
+        const sortedByChange = [...data].sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent));
+        setTrendingStocks(sortedByChange.slice(0, 3));
+        
         setLoading(prev => ({ ...prev, watchlist: false }));
       } catch (err) {
         console.error('Failed to fetch watchlist:', err);
@@ -94,155 +153,398 @@ const Dashboard: React.FC = () => {
       title: 'Symbol',
       dataIndex: 'symbol',
       key: 'symbol',
-      render: (text) => <strong>{text}</strong>,
+      render: (text) => (
+        <Link href={`/stocks/${text}`} style={{ fontWeight: 'bold' }}>
+          {text}
+        </Link>
+      ),
     },
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      render: (name, record) => (
+        <div>
+          <Link href={`/stocks/${record.symbol}`} style={{ color: 'inherit' }}>
+            {name}
+          </Link>
+          {record.sector && (
+            <Tag color="blue" style={{ marginLeft: 8 }}>
+              {record.sector}
+            </Tag>
+          )}
+        </div>
+      ),
     },
     {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
-      render: (price) => `$${price.toFixed(2)}`,
+      render: (price) => (
+        <Text strong>${price.toFixed(2)}</Text>
+      ),
     },
     {
       title: 'Change',
       dataIndex: 'change',
       key: 'change',
-      render: (change) => (
-        <span style={{ color: change >= 0 ? '#3f8600' : '#cf1322' }}>
-          {change >= 0 ? '+' : ''}{change.toFixed(2)}
-        </span>
+      render: (change, record) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={{ 
+            color: change >= 0 ? '#52c41a' : '#f5222d',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            {change >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+            <span style={{ marginLeft: 4 }}>
+              {change >= 0 ? '+' : ''}{change.toFixed(2)} ({record.changePercent.toFixed(2)}%)
+            </span>
+          </span>
+        </div>
       ),
     },
     {
-      title: 'Change %',
-      dataIndex: 'changePercent',
-      key: 'changePercent',
-      render: (changePercent) => (
-        <span style={{ color: changePercent >= 0 ? '#3f8600' : '#cf1322' }}>
-          {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(2)}%
-        </span>
-      ),
-    },
-    {
-      title: 'Action',
+      title: 'Actions',
       key: 'action',
-      render: () => (
-        <Button type="link" size="small">
-          Details
-        </Button>
+      render: (_, record) => (
+        <Space size="small">
+          <Tooltip title="View Details">
+            <Link href={`/stocks/${record.symbol}`}>
+              <Button type="primary" size="small" icon={<LineChartOutlined />}>
+                Details
+              </Button>
+            </Link>
+          </Tooltip>
+          <Tooltip title="Add to Watchlist">
+            <Button 
+              type="text" 
+              size="small" 
+              icon={<StarOutlined />} 
+              style={{ color: '#faad14' }}
+            />
+          </Tooltip>
+        </Space>
       ),
     },
   ];
 
+  // Render market index card
+  const renderMarketCard = (
+    title: string, 
+    value: number, 
+    change: number, 
+    changePercent: number,
+    icon: React.ReactNode
+  ) => (
+    <motion.div variants={itemVariants}>
+      <Card 
+        hoverable
+        style={{ 
+          height: '100%',
+          borderRadius: 12,
+          overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          border: '1px solid #f0f0f0'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <Text type="secondary" style={{ fontSize: 14 }}>{title}</Text>
+            <div style={{ 
+              fontSize: 24, 
+              fontWeight: 'bold', 
+              margin: '8px 0',
+              display: 'flex',
+              alignItems: 'baseline'
+            }}>
+              {value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+          </div>
+          <div style={{ 
+            width: 40, 
+            height: 40, 
+            borderRadius: '50%', 
+            background: 'rgba(22, 119, 255, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#1677ff'
+          }}>
+            {icon}
+          </div>
+        </div>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center',
+          marginTop: 8,
+          padding: '4px 8px',
+          borderRadius: 4,
+          width: 'fit-content',
+          background: change >= 0 ? 'rgba(82, 196, 26, 0.1)' : 'rgba(245, 34, 45, 0.1)',
+          color: change >= 0 ? '#52c41a' : '#f5222d'
+        }}>
+          {change >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+          <span style={{ marginLeft: 4 }}>
+            {change >= 0 ? '+' : ''}{change.toFixed(2)} ({changePercent.toFixed(2)}%)
+          </span>
+        </div>
+      </Card>
+    </motion.div>
+  );
+
+  // Render trending stock card
+  const renderTrendingCard = (stock: StockData, index: number) => (
+    <motion.div 
+      variants={itemVariants}
+      key={stock.symbol}
+      style={{ marginBottom: 16 }}
+    >
+      <Card 
+        hoverable
+        style={{ 
+          borderRadius: 12,
+          overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          border: '1px solid #f0f0f0'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ 
+              width: 32, 
+              height: 32, 
+              borderRadius: '50%', 
+              background: 'rgba(22, 119, 255, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#1677ff',
+              marginRight: 12
+            }}>
+              {index + 1}
+            </div>
+            <div>
+              <div style={{ fontWeight: 'bold' }}>
+                <Link href={`/stocks/${stock.symbol}`} style={{ color: 'inherit' }}>
+                  {stock.symbol}
+                </Link>
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.45)' }}>{stock.name}</div>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontWeight: 'bold' }}>${stock.price.toFixed(2)}</div>
+            <div style={{ 
+              color: stock.change >= 0 ? '#52c41a' : '#f5222d',
+              fontSize: 12,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end'
+            }}>
+              {stock.change >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+              <span style={{ marginLeft: 4 }}>
+                {stock.change >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+              </span>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
+
   return (
     <div>
-      <Title level={2}>Market Overview</Title>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <Title level={2} style={{ margin: 0 }}>Market Overview</Title>
+          <Text type="secondary">
+            Last updated: {new Date().toLocaleString()}
+          </Text>
+        </div>
+      </motion.div>
       
       {loading.market ? (
-        <div style={{ textAlign: 'center', margin: '20px 0' }}>
+        <div style={{ textAlign: 'center', margin: '40px 0' }}>
           <Spin size="large" />
         </div>
       ) : error.market ? (
         <Alert message={error.market} type="error" showIcon />
       ) : marketData && (
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card>
-              <Statistic
-                title="S&P 500"
-                value={marketData.sp500.value}
-                precision={2}
-                valueStyle={{ color: marketData.sp500.change >= 0 ? '#3f8600' : '#cf1322' }}
-                prefix={marketData.sp500.change >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-                suffix={`${marketData.sp500.change >= 0 ? '+' : ''}${marketData.sp500.changePercent.toFixed(2)}%`}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card>
-              <Statistic
-                title="Dow Jones"
-                value={marketData.dowJones.value}
-                precision={2}
-                valueStyle={{ color: marketData.dowJones.change >= 0 ? '#3f8600' : '#cf1322' }}
-                prefix={marketData.dowJones.change >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-                suffix={`${marketData.dowJones.change >= 0 ? '+' : ''}${marketData.dowJones.changePercent.toFixed(2)}%`}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card>
-              <Statistic
-                title="Nasdaq"
-                value={marketData.nasdaq.value}
-                precision={2}
-                valueStyle={{ color: marketData.nasdaq.change >= 0 ? '#3f8600' : '#cf1322' }}
-                prefix={marketData.nasdaq.change >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-                suffix={`${marketData.nasdaq.change >= 0 ? '+' : ''}${marketData.nasdaq.changePercent.toFixed(2)}%`}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card>
-              <Statistic
-                title="Russell 2000"
-                value={marketData.russell2000.value}
-                precision={2}
-                valueStyle={{ color: marketData.russell2000.change >= 0 ? '#3f8600' : '#cf1322' }}
-                prefix={marketData.russell2000.change >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-                suffix={`${marketData.russell2000.change >= 0 ? '+' : ''}${marketData.russell2000.changePercent.toFixed(2)}%`}
-              />
-            </Card>
-          </Col>
-        </Row>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} md={6}>
+              {renderMarketCard(
+                "S&P 500", 
+                marketData.sp500.value, 
+                marketData.sp500.change, 
+                marketData.sp500.changePercent,
+                <LineChartOutlined />
+              )}
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              {renderMarketCard(
+                "Dow Jones", 
+                marketData.dowJones.value, 
+                marketData.dowJones.change, 
+                marketData.dowJones.changePercent,
+                <GlobalOutlined />
+              )}
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              {renderMarketCard(
+                "Nasdaq", 
+                marketData.nasdaq.value, 
+                marketData.nasdaq.change, 
+                marketData.nasdaq.changePercent,
+                <DollarCircleOutlined />
+              )}
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              {renderMarketCard(
+                "Russell 2000", 
+                marketData.russell2000.value, 
+                marketData.russell2000.change, 
+                marketData.russell2000.changePercent,
+                <LineChartOutlined />
+              )}
+            </Col>
+          </Row>
+        </motion.div>
       )}
 
-      <div style={{ margin: '24px 0' }}>
-        <Title level={3}>Watchlist</Title>
-        <div style={{ marginBottom: 16 }}>
-          <Input 
-            placeholder="Search stocks..." 
-            prefix={<SearchOutlined />} 
-            style={{ width: 300 }}
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onKeyPress={handleKeyPress}
-            suffix={
-              <Button 
-                type="primary" 
-                onClick={handleSearch} 
-                loading={loading.search}
-                size="small"
+      <Divider style={{ margin: '32px 0 24px' }} />
+
+      <Row gutter={[24, 24]}>
+        <Col xs={24} lg={16}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Title level={3} style={{ margin: 0 }}>Watchlist</Title>
+              <Link href="/watchlist">
+                <Button type="link">View All</Button>
+              </Link>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <Input 
+                placeholder="Search stocks by name or symbol..." 
+                prefix={<SearchOutlined />} 
+                style={{ width: '100%' }}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onKeyPress={handleKeyPress}
+                size="large"
+                suffix={
+                  <Button 
+                    type="primary" 
+                    onClick={handleSearch} 
+                    loading={loading.search}
+                  >
+                    Search
+                  </Button>
+                }
+              />
+            </div>
+
+            {error.watchlist ? (
+              <Alert message={error.watchlist} type="error" showIcon />
+            ) : loading.watchlist ? (
+              <div style={{ textAlign: 'center', margin: '40px 0' }}>
+                <Spin size="large" />
+              </div>
+            ) : (
+              <Card 
+                bordered={false} 
+                style={{ 
+                  borderRadius: 12,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                }}
               >
-                Search
+                <Table 
+                  columns={columns} 
+                  dataSource={
+                    searchResults.length > 0 
+                      ? searchResults.map((stock, index) => ({ ...stock, key: index.toString() })) 
+                      : watchlist.map((stock, index) => ({ ...stock, key: index.toString() }))
+                  } 
+                  pagination={{ pageSize: 5 }}
+                  size="middle"
+                  loading={loading.search}
+                  rowKey="symbol"
+                />
+              </Card>
+            )}
+
+            {error.search && <Alert message={error.search} type="error" showIcon style={{ marginTop: 16 }} />}
+          </motion.div>
+        </Col>
+
+        <Col xs={24} lg={8}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
+            <Card 
+              title={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FireOutlined style={{ color: '#ff4d4f', marginRight: 8 }} />
+                  <span>Trending Stocks</span>
+                </div>
+              }
+              bordered={false}
+              style={{ 
+                borderRadius: 12,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+              }}
+            >
+              {loading.watchlist ? (
+                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                  <Spin />
+                </div>
+              ) : (
+                <div>
+                  {trendingStocks.map((stock, index) => renderTrendingCard(stock, index))}
+                  <div style={{ textAlign: 'center', marginTop: 16 }}>
+                    <Link href="/stocks">
+                      <Button type="primary">Discover More Stocks</Button>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </Card>
+
+            <Card 
+              title="Market News"
+              bordered={false}
+              style={{ 
+                borderRadius: 12,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                marginTop: 24
+              }}
+            >
+              <Paragraph>
+                <Text strong>Market Insights:</Text> Stay updated with the latest market trends and news.
+              </Paragraph>
+              <Button type="primary" ghost style={{ width: '100%' }}>
+                Coming Soon
               </Button>
-            }
-          />
-        </div>
-
-        {error.watchlist ? (
-          <Alert message={error.watchlist} type="error" showIcon />
-        ) : loading.watchlist ? (
-          <div style={{ textAlign: 'center', margin: '20px 0' }}>
-            <Spin size="large" />
-          </div>
-        ) : (
-          <Table 
-            columns={columns} 
-            dataSource={searchResults.length > 0 ? searchResults : watchlist.map((stock, index) => ({ ...stock, key: index.toString() }))} 
-            pagination={false}
-            size="middle"
-            bordered
-            loading={loading.search}
-          />
-        )}
-
-        {error.search && <Alert message={error.search} type="error" showIcon style={{ marginTop: 16 }} />}
-      </div>
+            </Card>
+          </motion.div>
+        </Col>
+      </Row>
     </div>
   );
 };
