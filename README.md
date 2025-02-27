@@ -9,6 +9,14 @@ A modern stock market tracking application built with Next.js, React, and Ant De
 - Portfolio simulation
 - Responsive design with Ant Design
 - Serverless architecture with Vercel deployment
+- Advanced technical analysis with multiple indicators:
+  - Simple Moving Averages (SMA)
+  - Exponential Moving Averages (EMA)
+  - Relative Strength Index (RSI)
+  - Moving Average Convergence Divergence (MACD)
+  - Bollinger Bands
+  - Support and resistance levels
+  - Automated trading signals
 
 ## Tech Stack
 
@@ -65,20 +73,37 @@ vercel-finance/
 ├── src/
 │   ├── app/            # App router pages
 │   │   ├── api/        # API routes (serverless functions)
+│   │   │   ├── stocks/ # Stock data API endpoints
+│   │   │   │   ├── indicators/ # Technical indicators API
+│   │   │   │   ├── history/    # Historical data API
 │   │   ├── stocks/     # Stock search page
 │   │   ├── watchlist/  # Watchlist page
 │   │   ├── portfolio/  # Portfolio page
 │   ├── components/     # React components
 │   │   ├── dashboard/  # Dashboard components
 │   │   ├── layout/     # Layout components
+│   │   ├── charts/     # Chart components
 │   │   ├── providers/  # Provider components
 │   ├── services/       # API services
 │   └── types/          # TypeScript type definitions
 ├── .env.local          # Environment variables
 ├── next.config.ts      # Next.js configuration
 ├── vercel.json         # Vercel configuration
+├── technical-analysis.md # Technical analysis documentation
 └── package.json        # Project dependencies
 ```
+
+## Technical Analysis
+
+The application includes comprehensive technical analysis capabilities to help users make informed trading decisions. Key features include:
+
+- Interactive charts with multiple timeframes (1D to 5Y)
+- Multiple technical indicators that can be toggled on/off
+- Automated trading signals based on indicator patterns
+- Support and resistance level identification
+- Detailed tooltips showing OHLC data and indicator values
+
+For detailed information about each technical indicator and how to interpret them, see [technical-analysis.md](technical-analysis.md).
 
 ## Development Roadmap
 
