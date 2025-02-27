@@ -1,12 +1,13 @@
 {
-  "name": "temp-next",
+  "name": "vercel-finance",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.23.0",
