@@ -141,12 +141,19 @@ export const getTechnicalIndicators = async (
 };
 
 /**
- * Get watchlist (to be implemented with local storage or database)
+ * Get watchlist from local storage and fetch current data
  */
 export const getWatchlist = async (): Promise<StockData[]> => {
-  // For now, return a few popular stocks
-  // In the future, this will fetch from user's saved watchlist
-  const symbols = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META'];
+  // Import dynamically to avoid SSR issues
+  const { getWatchlist } = await import('./storageService');
+  
+  // Get symbols from local storage
+  const symbols = getWatchlist();
+  
+  // If watchlist is empty, return empty array
+  if (symbols.length === 0) {
+    return [];
+  }
   
   try {
     const stockPromises = symbols.map(symbol => getStockQuote(symbol));

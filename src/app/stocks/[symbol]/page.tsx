@@ -273,9 +273,9 @@ export default function StockDetailPage() {
         // Generate technical analysis signals
         generateSignals(technicalData);
         
-        // Check if stock is in watchlist (to be implemented with local storage or database)
-        // For now, just a placeholder
-        setInWatchlist(false);
+        // Check if stock is in watchlist
+        const { isInWatchlist } = await import('@/services/storageService');
+        setInWatchlist(isInWatchlist(symbol));
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load data');
@@ -289,9 +289,22 @@ export default function StockDetailPage() {
     }
   }, [symbol, generateSignals]);
 
-  const toggleWatchlist = () => {
-    // To be implemented with local storage or database
-    setInWatchlist(!inWatchlist);
+  const toggleWatchlist = async () => {
+    try {
+      // Import storage service dynamically to avoid SSR issues
+      const { addToWatchlist, removeFromWatchlist } = await import('@/services/storageService');
+      
+      if (inWatchlist) {
+        removeFromWatchlist(symbol);
+      } else {
+        addToWatchlist(symbol);
+      }
+      
+      // Update state
+      setInWatchlist(!inWatchlist);
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+    }
   };
 
   const formatLargeNumber = (num: number | undefined) => {

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/AppLayout';
-import { Typography, Card, Input, Button, Table, Tag, Space, Spin, Alert } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Typography, Card, Input, Button, Table, Tag, Space, Spin, Alert, message, Tooltip } from 'antd';
+import { SearchOutlined, StarOutlined, StarFilled } from '@ant-design/icons';
 import { searchStocks } from '@/services/stockApi';
 import { StockData } from '@/types/stock';
 
@@ -25,6 +25,47 @@ export default function StocksPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searched, setSearched] = useState(false);
+  const [watchlist, setWatchlist] = useState<string[]>([]);
+
+  // Load watchlist on component mount
+  useEffect(() => {
+    const loadWatchlist = async () => {
+      try {
+        // Import storage service dynamically to avoid SSR issues
+        const { getWatchlist } = await import('@/services/storageService');
+        setWatchlist(getWatchlist());
+      } catch (error) {
+        console.error('Error loading watchlist:', error);
+      }
+    };
+    
+    loadWatchlist();
+  }, []);
+
+  // Toggle watchlist status
+  const toggleWatchlist = async (symbol: string) => {
+    try {
+      // Import storage service dynamically to avoid SSR issues
+      const { addToWatchlist, removeFromWatchlist, isInWatchlist } = await import('@/services/storageService');
+      
+      const inWatchlist = isInWatchlist(symbol);
+      
+      if (inWatchlist) {
+        removeFromWatchlist(symbol);
+        message.success(`${symbol} removed from watchlist`);
+      } else {
+        addToWatchlist(symbol);
+        message.success(`${symbol} added to watchlist`);
+      }
+      
+      // Update watchlist state
+      const { getWatchlist } = await import('@/services/storageService');
+      setWatchlist(getWatchlist());
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+      message.error('Failed to update watchlist');
+    }
+  };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -111,6 +152,25 @@ export default function StocksPage() {
       render: (sector: string) => (
         sector ? <Tag color="blue">{sector}</Tag> : <Tag color="default">N/A</Tag>
       ),
+    },
+    {
+      title: 'Watchlist',
+      key: 'watchlist',
+      render: (_: unknown, record: StockRecord) => {
+        const inWatchlist = watchlist.includes(record.symbol);
+        return (
+          <Tooltip title={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}>
+            <Button 
+              type="text"
+              icon={inWatchlist ? <StarFilled style={{ color: '#faad14' }} /> : <StarOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleWatchlist(record.symbol);
+              }}
+            />
+          </Tooltip>
+        );
+      },
     },
     {
       title: 'Action',
