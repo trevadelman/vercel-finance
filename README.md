@@ -4,12 +4,11 @@ A modern stock market tracking application built with Next.js, React, and Ant De
 
 ## Features
 
-- Real-time stock price tracking
+- Real-time stock price tracking with Yahoo Finance API
 - Watchlist for favorite stocks
-- Historical price charts with Recharts
-- Basic financial metrics
 - Portfolio simulation
 - Responsive design with Ant Design
+- Serverless architecture with Vercel deployment
 
 ## Tech Stack
 
@@ -21,7 +20,12 @@ A modern stock market tracking application built with Next.js, React, and Ant De
 
 ### Backend
 - Serverless functions (Vercel)
-- Stock market data API integration
+- Yahoo Finance API integration
+
+## Live Demo
+
+The application is deployed and available at:
+[https://vercel-finance-lkfszpmuy-trevors-projects-feab3da9.vercel.app](https://vercel-finance-lkfszpmuy-trevors-projects-feab3da9.vercel.app)
 
 ## Getting Started
 
@@ -33,7 +37,7 @@ A modern stock market tracking application built with Next.js, React, and Ant De
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/vercel-finance.git
+git clone https://github.com/trevadelman/vercel-finance.git
 cd vercel-finance
 ```
 
@@ -44,19 +48,14 @@ npm install
 yarn install
 ```
 
-3. Create a `.env.local` file in the root directory and add your API keys:
-```
-NEXT_PUBLIC_STOCK_API_KEY=your_api_key_here
-```
-
-4. Start the development server
+3. Start the development server
 ```bash
 npm run dev
 # or
 yarn dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
 ## Project Structure
 
@@ -65,24 +64,34 @@ vercel-finance/
 ├── public/             # Static assets
 ├── src/
 │   ├── app/            # App router pages
+│   │   ├── api/        # API routes (serverless functions)
+│   │   ├── stocks/     # Stock search page
+│   │   ├── watchlist/  # Watchlist page
+│   │   ├── portfolio/  # Portfolio page
 │   ├── components/     # React components
-│   ├── contexts/       # React context providers
-│   ├── hooks/          # Custom React hooks
-│   ├── lib/            # Utility functions
+│   │   ├── dashboard/  # Dashboard components
+│   │   ├── layout/     # Layout components
+│   │   ├── providers/  # Provider components
 │   ├── services/       # API services
 │   └── types/          # TypeScript type definitions
-├── .env.local          # Environment variables (create this file)
+├── .env.local          # Environment variables
 ├── next.config.ts      # Next.js configuration
+├── vercel.json         # Vercel configuration
 └── package.json        # Project dependencies
 ```
 
 ## Development Roadmap
 
-See [roadmap.md](roadmap.md) for the detailed development plan.
+See [roadmap.md](roadmap.md) for the detailed development plan and current progress.
 
 ## Deployment
 
-This project is configured for easy deployment on Vercel. Connect your GitHub repository to Vercel for automatic deployments.
+This project is deployed on Vercel. The GitHub repository is connected to Vercel for automatic deployments.
+
+## GitHub Repository
+
+The code is available on GitHub:
+[https://github.com/trevadelman/vercel-finance](https://github.com/trevadelman/vercel-finance)
 
 ## License
 
