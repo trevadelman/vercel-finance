@@ -1,4 +1,4 @@
-import { StockData, MarketIndices } from '@/types/stock';
+import { StockData, MarketIndices, StockHistoricalData } from '@/types/stock';
 
 // Base URL for API requests
 const API_BASE_URL = '/api/stocks';
@@ -66,6 +66,32 @@ export const getMarketIndices = async (): Promise<MarketIndices> => {
 };
 
 /**
+ * Get historical stock data
+ * @param symbol Stock symbol
+ * @param period Time period (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, ytd)
+ * @param interval Data interval (1d, 1wk, 1mo)
+ */
+export const getStockHistory = async (
+  symbol: string,
+  period: string = '1mo',
+  interval: string = '1d'
+): Promise<StockHistoricalData[]> => {
+  try {
+    const url = `${API_BASE_URL}/history?symbol=${encodeURIComponent(symbol)}&period=${period}&interval=${interval}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch historical data: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching historical data:', error);
+    return [];
+  }
+};
+
+/**
  * Get watchlist (to be implemented with local storage or database)
  */
 export const getWatchlist = async (): Promise<StockData[]> => {
@@ -86,5 +112,6 @@ export default {
   getStockQuote,
   searchStocks,
   getMarketIndices,
+  getStockHistory,
   getWatchlist,
 };

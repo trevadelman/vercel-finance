@@ -49,10 +49,10 @@
 - Add company information display ✅
 - Implement basic financial metrics ✅
 
-### 3.2 Charts & Visualization 🔄
+### 3.2 Charts & Visualization ✅
 - Set up charting library (Recharts) ✅
-- Implement historical price charts 🔄
-- Create time period selectors (1D, 1W, 1M, 1Y, 5Y) 🔄
+- Implement historical price charts ✅
+- Create time period selectors (1D, 1W, 1M, 1Y, 5Y) ✅
 - Add technical indicators (optional) 🔄
 
 ### 3.3 Watchlist Feature ✅
@@ -110,7 +110,7 @@
 
 ## Current Progress
 
-We have successfully completed Phases 1, 2, and most of Phase 3. The application is now deployed on Vercel and available at:
+We have successfully completed Phases 1, 2, and 3. The application is now deployed on Vercel and available at:
 [https://vercel-finance-lkfszpmuy-trevors-projects-feab3da9.vercel.app](https://vercel-finance-lkfszpmuy-trevors-projects-feab3da9.vercel.app)
 
 The GitHub repository is available at:
@@ -121,12 +121,14 @@ The GitHub repository is available at:
 - API integration with Yahoo Finance
 - Responsive layout with Ant Design
 - Stock search functionality
+- Stock detail page with historical price charts
+- Time period selectors for charts (1D, 5D, 1M, 3M, 6M, 1Y, 5Y, YTD)
 - Watchlist management
 - Portfolio simulation
 - Real-time market data
 
 ### Next Steps
-- Enhance charting capabilities
+- Implement technical indicators for charts
 - Implement user authentication
 - Add database integration for persistent storage
 - Integrate financial news
