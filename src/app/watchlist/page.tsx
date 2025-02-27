@@ -3,10 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import { Typography, Table, Button, Empty, Card, Spin, Alert, message } from 'antd';
-import { PlusOutlined, DeleteOutlined, StarFilled, LineChartOutlined } from '@ant-design/icons';
+import { DeleteOutlined, StarFilled, LineChartOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { getWatchlist } from '@/services/stockApi';
 import { StockData } from '@/types/stock';
+
+// Define interface for recommended stocks
+interface StockRecord {
+  key: string;
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+}
 
 const { Title, Paragraph } = Typography;
 
@@ -130,7 +139,7 @@ export default function WatchlistPage() {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: StockData) => (
+      render: (_: unknown, record: StockData) => (
         <div style={{ display: 'flex', gap: 8 }}>
           <Link href={`/stocks/${record.symbol}`}>
             <Button type="default" icon={<LineChartOutlined />} size="small">
@@ -187,7 +196,7 @@ export default function WatchlistPage() {
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: StockRecord) => (
         <Button 
           type="primary" 
           size="small" 

@@ -5,7 +5,7 @@
  * It handles watchlist and portfolio data persistence.
  */
 
-import { StockData } from '@/types/stock';
+// No need to import StockData as it's not used
 
 // Define portfolio item interface
 export interface PortfolioItem {

@@ -37,12 +37,23 @@ import dayjs from 'dayjs';
 
 const { Title, Paragraph, Text } = Typography;
 
+// Define interface for recommended stocks
+interface RecommendedStock {
+  key: string;
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+}
+
 export default function PortfolioPage() {
   const [portfolio, setPortfolio] = useState<(PortfolioItem & { currentPrice?: number; currentValue?: number; gain?: number; gainPercent?: number })[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [addModalVisible, setAddModalVisible] = useState<boolean>(false);
   const [editModalVisible, setEditModalVisible] = useState<boolean>(false);
+  // currentStock is used when adding stocks to the portfolio
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentStock, setCurrentStock] = useState<string>('');
   const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
   const [form] = Form.useForm();
@@ -148,7 +159,12 @@ export default function PortfolioPage() {
   };
 
   // Add stock to portfolio
-  const addToPortfolio = async (values: any) => {
+  const addToPortfolio = async (values: {
+    symbol: string;
+    shares: number;
+    purchasePrice: number;
+    purchaseDate: dayjs.Dayjs;
+  }) => {
     try {
       // Import storage service dynamically to avoid SSR issues
       const { addToPortfolio } = await import('@/services/storageService');
@@ -215,7 +231,11 @@ export default function PortfolioPage() {
   };
 
   // Edit portfolio item
-  const editPortfolioItem = async (values: any) => {
+  const editPortfolioItem = async (values: {
+    shares: number;
+    purchasePrice: number;
+    purchaseDate: dayjs.Dayjs;
+  }) => {
     try {
       if (!editingItem) return;
       
@@ -319,7 +339,7 @@ export default function PortfolioPage() {
   };
 
   // Recommended stocks
-  const recommendedStocks = [
+  const recommendedStocks: RecommendedStock[] = [
     {
       key: '1',
       symbol: 'VOO',
@@ -344,7 +364,7 @@ export default function PortfolioPage() {
   ];
 
   // Add recommended stock to portfolio
-  const addRecommendedStock = async (stock: any) => {
+  const addRecommendedStock = async (stock: RecommendedStock) => {
     setCurrentStock(stock.symbol);
     setStockData({
       symbol: stock.symbol,
@@ -412,13 +432,13 @@ export default function PortfolioPage() {
     {
       title: 'Gain/Loss',
       key: 'gain',
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: PortfolioItem & { currentPrice?: number; currentValue?: number; gain?: number; gainPercent?: number }) => (
         <div>
-          <div style={{ color: record.gain >= 0 ? '#3f8600' : '#cf1322' }}>
-            {record.gain >= 0 ? '+' : ''}${record.gain.toFixed(2)}
+          <div style={{ color: (record.gain || 0) >= 0 ? '#3f8600' : '#cf1322' }}>
+            {(record.gain || 0) >= 0 ? '+' : ''}${(record.gain || 0).toFixed(2)}
           </div>
-          <div style={{ color: record.gainPercent >= 0 ? '#3f8600' : '#cf1322', fontSize: 12 }}>
-            {record.gainPercent >= 0 ? '+' : ''}{record.gainPercent.toFixed(2)}%
+          <div style={{ color: (record.gainPercent || 0) >= 0 ? '#3f8600' : '#cf1322', fontSize: 12 }}>
+            {(record.gainPercent || 0) >= 0 ? '+' : ''}{(record.gainPercent || 0).toFixed(2)}%
           </div>
         </div>
       ),
@@ -426,7 +446,7 @@ export default function PortfolioPage() {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: PortfolioItem & { currentPrice?: number; currentValue?: number; gain?: number; gainPercent?: number }) => (
         <div style={{ display: 'flex', gap: 8 }}>
           <Link href={`/stocks/${record.symbol}`}>
             <Button type="default" icon={<LineChartOutlined />} size="small">
@@ -489,7 +509,7 @@ export default function PortfolioPage() {
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: RecommendedStock) => (
         <Button 
           type="primary" 
           size="small" 
