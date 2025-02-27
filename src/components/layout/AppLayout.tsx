@@ -96,7 +96,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           transition: 'all 0.3s'
         }}
       >
-        {collapsed ? 'VF' : 'Vercel Finance'}
+        {collapsed ? 'TF' : 'Trend Friendly'}
       </div>
       <Menu
         theme="dark"
@@ -122,7 +122,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           Market data provided by Yahoo Finance
         </div>
         <div style={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: '12px' }}>
-          © 2025 Vercel Finance
+          © 2025 Trend Friendly
         </div>
       </div>
     </>

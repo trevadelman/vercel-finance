@@ -1,4 +1,4 @@
-# Vercel Finance - Stock Market Tracking Application
+# Trend Friendly - Stock Market Tracking Application
 
 A modern stock market tracking application built with Next.js, React, and Ant Design. This application allows users to track stock prices, save favorites to a watchlist, view historical data with charts, and simulate a portfolio.
 
@@ -35,7 +35,7 @@ A modern stock market tracking application built with Next.js, React, and Ant De
 ## Live Demo
 
 The application is deployed and available at:
-[https://vercel-finance-five.vercel.app](https://vercel-finance-five.vercel.app)
+[https://trend-friendly.vercel.app](https://trend-friendly.vercel.app)
 
 ## Getting Started
 
@@ -47,8 +47,8 @@ The application is deployed and available at:
 
 1. Clone the repository
 ```bash
-git clone https://github.com/trevadelman/vercel-finance.git
-cd vercel-finance
+git clone https://github.com/trevadelman/trend-friendly.git
+cd trend-friendly
 ```
 
 2. Install dependencies
@@ -70,7 +70,7 @@ yarn dev
 ## Project Structure
 
 ```
-vercel-finance/
+trend-friendly/
 ├── public/             # Static assets
 ├── src/
 │   ├── app/            # App router pages
@@ -132,7 +132,7 @@ This project is deployed on Vercel. The GitHub repository is connected to Vercel
 ## GitHub Repository
 
 The code is available on GitHub:
-[https://github.com/trevadelman/vercel-finance](https://github.com/trevadelman/vercel-finance)
+[https://github.com/trevadelman/trend-friendly](https://github.com/trevadelman/trend-friendly)
 
 ## License
 

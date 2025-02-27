@@ -9,7 +9,7 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Vercel Finance - Stock Market Tracking",
+  title: "Trend Friendly - Up Only, Until It's Not",
   description: "A modern stock market tracking application built with Next.js, React, and Ant Design",
 };
 

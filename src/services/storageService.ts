@@ -18,8 +18,8 @@ export interface PortfolioItem {
 }
 
 // Keys for localStorage
-const WATCHLIST_KEY = 'vercel-finance-watchlist';
-const PORTFOLIO_KEY = 'vercel-finance-portfolio';
+const WATCHLIST_KEY = 'trend-friendly-watchlist';
+const PORTFOLIO_KEY = 'trend-friendly-portfolio';
 
 /**
  * Get watchlist from localStorage
