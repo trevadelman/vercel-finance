@@ -5,8 +5,9 @@ A modern stock market tracking application built with Next.js, React, and Ant De
 ## Features
 
 - Real-time stock price tracking with Yahoo Finance API
-- Watchlist for favorite stocks
-- Portfolio simulation
+- Watchlist for favorite stocks with localStorage persistence
+- Portfolio simulation with performance tracking
+- Local storage persistence for user data (watchlist and portfolio)
 - Responsive design with Ant Design
 - Serverless architecture with Vercel deployment
 - Advanced technical analysis with multiple indicators:
@@ -25,6 +26,7 @@ A modern stock market tracking application built with Next.js, React, and Ant De
 - Ant Design 5.x for UI components
 - React Context API for state management
 - Recharts for data visualization
+- Browser localStorage for data persistence
 
 ### Backend
 - Serverless functions (Vercel)
@@ -85,6 +87,8 @@ vercel-finance/
 │   │   ├── charts/     # Chart components
 │   │   ├── providers/  # Provider components
 │   ├── services/       # API services
+│   │   ├── stockApi.ts # Stock API service
+│   │   ├── storageService.ts # Local storage service
 │   └── types/          # TypeScript type definitions
 ├── .env.local          # Environment variables
 ├── next.config.ts      # Next.js configuration
@@ -92,6 +96,18 @@ vercel-finance/
 ├── technical-analysis.md # Technical analysis documentation
 └── package.json        # Project dependencies
 ```
+
+## Data Persistence
+
+The application uses browser localStorage for data persistence with the following characteristics:
+
+- **Watchlist**: Save and manage your favorite stocks across browser sessions
+- **Portfolio**: Track your simulated investments with purchase history and performance metrics
+- **Device-Specific**: Data is stored on the current device and browser
+- **No Account Required**: Use the application without creating an account
+- **Limitations**: Data won't sync across devices and will be lost if browser data is cleared
+
+For more robust persistence options, see the future improvements in [roadmap.md](roadmap.md).
 
 ## Technical Analysis
 
