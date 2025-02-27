@@ -5,7 +5,6 @@ import {
   Row, 
   Col, 
   Card, 
-  Statistic, 
   Typography, 
   Table, 
   Input, 
@@ -15,20 +14,17 @@ import {
   Divider, 
   Tag, 
   Tooltip, 
-  Space,
-  Badge
+  Space
 } from 'antd';
 import { 
   ArrowUpOutlined, 
   ArrowDownOutlined, 
   SearchOutlined, 
-  InfoCircleOutlined,
-  StarOutlined,
-  StarFilled,
   LineChartOutlined,
   DollarCircleOutlined,
   GlobalOutlined,
-  FireOutlined
+  FireOutlined,
+  StarOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { StockData, MarketIndices } from '@/types/stock';

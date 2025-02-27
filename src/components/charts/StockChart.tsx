@@ -9,17 +9,16 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  Legend,
   Area,
   AreaChart,
   ReferenceLine
 } from 'recharts';
-import { Card, Radio, Spin, Alert, Typography, Statistic, Row, Col, Divider, Space, Tag } from 'antd';
+import { Card, Radio, Spin, Alert, Typography, Statistic, Row, Col, Divider, Space } from 'antd';
 import type { RadioChangeEvent } from 'antd/es/radio';
 import type { StatisticProps } from 'antd/es/statistic';
 import { StockHistoricalData } from '@/types/stock';
 import { getStockHistory } from '@/services/stockApi';
-import { ArrowUpOutlined, ArrowDownOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
