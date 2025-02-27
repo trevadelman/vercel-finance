@@ -12,6 +12,7 @@ import {
   Legend
 } from 'recharts';
 import { Card, Radio, Spin, Alert, Typography } from 'antd';
+import type { RadioChangeEvent } from 'antd/es/radio';
 import { StockHistoricalData } from '@/types/stock';
 import { getStockHistory } from '@/services/stockApi';
 
@@ -27,6 +28,17 @@ type PeriodOption = {
   value: string;
   interval: string;
 };
+
+// Define tooltip props interface
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: StockHistoricalData;
+    value: number;
+    name: string;
+  }>;
+  label?: string;
+}
 
 const periodOptions: PeriodOption[] = [
   { label: '1D', value: '1d', interval: '1d' },
@@ -73,7 +85,7 @@ const StockChart: React.FC<StockChartProps> = ({ symbol, name }) => {
     fetchHistoricalData();
   }, [symbol, selectedPeriod]);
 
-  const handlePeriodChange = (e: any) => {
+  const handlePeriodChange = (e: RadioChangeEvent) => {
     const period = periodOptions.find(option => option.value === e.target.value);
     if (period) {
       setSelectedPeriod(period);
@@ -95,7 +107,7 @@ const StockChart: React.FC<StockChartProps> = ({ symbol, name }) => {
   };
 
   // Custom tooltip component
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div style={{ 
@@ -105,7 +117,7 @@ const StockChart: React.FC<StockChartProps> = ({ symbol, name }) => {
           borderRadius: '4px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}>
-          <p style={{ margin: 0 }}><strong>{formatDate(label)}</strong></p>
+          <p style={{ margin: 0 }}><strong>{label ? formatDate(label) : ''}</strong></p>
           <p style={{ margin: 0, color: '#1677ff' }}>
             Open: {formatPrice(payload[0].payload.open)}
           </p>

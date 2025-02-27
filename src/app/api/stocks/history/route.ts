@@ -5,6 +5,16 @@ import { StockHistoricalData } from '@/types/stock';
 // Define valid interval types for Yahoo Finance
 type YahooInterval = '1d' | '1wk' | '1mo';
 
+// Define the Yahoo Finance historical data item type
+interface YahooHistoricalDataItem {
+  date: Date;
+  open?: number;
+  high?: number;
+  low?: number;
+  close?: number;
+  volume?: number;
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const symbol = searchParams.get('symbol');
@@ -36,7 +46,7 @@ export async function GET(request: NextRequest) {
     const result = await yahooFinance.historical(symbol, queryOptions);
     
     // Transform the data to match our StockHistoricalData interface
-    const historicalData: StockHistoricalData[] = result.map((item: any) => ({
+    const historicalData: StockHistoricalData[] = result.map((item: YahooHistoricalDataItem) => ({
       date: item.date.toISOString().split('T')[0], // Format as YYYY-MM-DD
       open: item.open || 0,
       high: item.high || 0,

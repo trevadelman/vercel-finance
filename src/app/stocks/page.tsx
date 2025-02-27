@@ -10,6 +10,14 @@ import { StockData } from '@/types/stock';
 
 const { Title, Paragraph } = Typography;
 
+// Define table record type
+interface StockRecord {
+  key: string;
+  symbol: string;
+  name: string;
+  sector: string;
+}
+
 export default function StocksPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,7 +59,7 @@ export default function StocksPage() {
   };
 
   // Popular stocks data
-  const popularStocks = [
+  const popularStocks: StockRecord[] = [
     {
       key: '1',
       symbol: 'AAPL',
@@ -107,7 +115,7 @@ export default function StocksPage() {
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: StockRecord) => (
         <Button 
           type="link"
           onClick={() => navigateToStockDetail(record.symbol)}

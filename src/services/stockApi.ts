@@ -108,10 +108,13 @@ export const getWatchlist = async (): Promise<StockData[]> => {
   }
 };
 
-export default {
+// Create a named object for the default export
+const stockApi = {
   getStockQuote,
   searchStocks,
   getMarketIndices,
   getStockHistory,
   getWatchlist,
 };
+
+export default stockApi;
