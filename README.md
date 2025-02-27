@@ -25,7 +25,7 @@ A modern stock market tracking application built with Next.js, React, and Ant De
 ## Live Demo
 
 The application is deployed and available at:
-[https://vercel-finance-lkfszpmuy-trevors-projects-feab3da9.vercel.app](https://vercel-finance-lkfszpmuy-trevors-projects-feab3da9.vercel.app)
+[https://vercel-finance-five.vercel.app](https://vercel-finance-five.vercel.app)
 
 ## Getting Started
 
